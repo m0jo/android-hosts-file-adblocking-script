@@ -1,0 +1,41 @@
+#!/system/xbin/bash
+echo "Testing if we can write /etc/hosts.."
+
+if [ ! -w /etc/hosts ]
+then
+ echo "Nope. Aborting. (Did you forget to remount /system?)"
+ exit
+fi
+
+echo "Saving copy of system's original hosts file in /sdcard/hosts.BAK ..."
+mv /etc/hosts /sdcard/hosts.BAK
+
+touch /etc/hosts
+
+echo "Done."
+
+echo "Downloading ad-blocking hosts files..."
+#wget http://winhelp2002.mvps.org/hosts.txt >> /etc/hosts
+wget http://hosts-file.net/download/hosts.txt >> /etc/hosts
+wget http://someonewhocares.org/hosts/hosts >> /etc/hosts
+echo "Done."
+echo "########"
+echo "## REMEMBER: Running root-shellcode from strangers is dangerous!"
+echo "########"
+# Do some work on the file:
+# 1. Remove MS-DOS carriage returns
+# 2. Delete all lines that don't begin with 127.0.0.1
+# 3. Delete any lines containing the word localhost because we'll obtain that from the original hosts file
+# 4. Delete any lines containing the word dropbox.com.
+# 5. Replace 127.0.0.1 with 0.0.0.0 because then we don't have to wait for the resolver to fail
+# 6. Scrunch extraneous spaces separating address from name into a single tab
+# 7. Delete any comments on lines
+# 8. Clean up leftover trailing blanks
+# Pass all this through sort with the unique flag to remove duplicates and save the result
+echo "Parsing, cleaning, de-duplicating, sorting..."
+echo "This can take while! (Up to 5 minutes, depending on your hardware.)"
+
+sed -i -e 's/\r//' -e '/^127.0.0.1/!d' -e '/localhost/d' -e '/dropbox.com/d' -e 's/127.0.0.1/0.0.0.0/' -e 's/ \+/\t/' -e 's/#.*$//' -e 's/[ \t]*$//' /etc/hosts
+echo "`uniq /etc/hosts`" > /etc/hosts
+echo "Done."
+echo "Finished."
