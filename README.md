@@ -19,3 +19,8 @@
   
   Remember that running scripts as root from strangers can be dangerous!
  
+
+
+
+
+Loosely based on https://wiki.ubuntuusers.de/hosts/
